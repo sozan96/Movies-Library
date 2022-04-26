@@ -16,6 +16,9 @@ function handleListen() {
 // 4. creating a route
 app.get("/", handleHomePage);
 app.get("/FavoritePage", handelFavoritePage)
+app.use(Err500);
+
+
 
 //5.Functions for home page
 function handleHomePage (req ,res){
@@ -36,6 +39,17 @@ function handelFavoritePage (req ,res){
 res.send("Welcome to Favorite Page");
 }
 
+
+
+//Function of handeling error 500
+function Err500 (req,res){
+    let error={
+        "status":500,
+        "responsetext": "Sorry something went wrong"
+    
+    }
+    res.status(500).json(error);
+}
 
 
 
