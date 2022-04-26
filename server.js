@@ -16,6 +16,9 @@ function handleListen() {
 // 4. creating a route
 app.get("/", handleHomePage);
 app.get("/FavoritePage", handelFavoritePage)
+app.use(Err500);
+app.get("*" , Err404);
+
 
 //5.Functions for home page
 function handleHomePage (req ,res){
@@ -38,5 +41,25 @@ res.send("Welcome to Favorite Page");
 
 
 
+//Function of handeling error 500
+function Err500 (req,res){
+    let error={
+        "status":500,
+        "responsetext": "Sorry something went wrong"
+    
+    }
+    res.status(500).json(error);
+}
 
+
+// Function of handeling error 404
+// (this function not work until commant  the function error500 )
+function Err404 (req, res){
+    let error ={
+        "status" :404,
+        "responsetext" : "page not found error"
+
+    }
+    res.status(404).json(error);
+}
 
