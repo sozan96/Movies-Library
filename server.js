@@ -17,7 +17,7 @@ function handleListen() {
 app.get("/", handleHomePage);
 app.get("/FavoritePage", handelFavoritePage)
 app.use(Err500);
-app.get("*" , Err404);
+
 
 
 //5.Functions for home page
@@ -52,14 +52,5 @@ function Err500 (req,res){
 }
 
 
-// Function of handeling error 404
-// (this function not work until commant  the function error500 )
-function Err404 (req, res){
-    let error ={
-        "status" :404,
-        "responsetext" : "page not found error"
 
-    }
-    res.status(404).json(error);
-}
 
