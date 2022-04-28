@@ -15,7 +15,8 @@ function handleListen() {
 }
 // 4. creating a route
 app.get("/", handleHomePage);
-app.get("/FavoritePage", handelFavoritePage)
+app.get("/favorite", handelFavoritePage)
+app.use( "*",handelNotfound);
 app.use(Err500);
 
 
@@ -36,7 +37,7 @@ function Movi(title, poster_path, overview) {
 }
 
 function handelFavoritePage (req ,res){
-res.send("Welcome to Favorite Page");
+res.send("Welcome to favorite Page");
 }
 
 
@@ -51,6 +52,9 @@ function Err500 (req,res){
     res.status(500).json(error);
 }
 
-
+function handelNotfound(req , res)
+{
+    res.send("page not found")
+}
 
 
