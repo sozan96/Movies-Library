@@ -24,10 +24,17 @@ function handleListen() {
 
 // 4. creating a route
 app.get("/", handleHomePage);
-app.get("/FavoritePage", handelFavoritePage)
-// app.use(Err500);
+
+app.get("/favorite", handelFavoritePage)
+app.use( "*",handelNotfound);
+app.use(Err500);
+
+
+
+
 app.get('/trending', handleTrending);
 app.get('/search', handleSearch);
+
 
 
 //5.Functions for home page
@@ -41,7 +48,7 @@ function handleHomePage (req ,res){
 
 
 function handelFavoritePage (req ,res){
-res.send("Welcome to Favorite Page");
+res.send("Welcome to favorite Page");
 }
 
 
@@ -54,6 +61,12 @@ function Err500 (req,res){
     
     }
     res.status(500).json(error);
+}
+
+
+function handelNotfound(req , res)
+{
+    res.send("page not found")
 }
 
 
@@ -72,6 +85,7 @@ function handleTrending(req, res) {
             console.log(error);
             res.send("Inside catch")
         })
+
 
     }
 
