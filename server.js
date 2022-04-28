@@ -1,10 +1,10 @@
 'use strict'
 
 // 1. require the package
+require('dotenv').config();
 const express = require('express');
 const moviData = require("./data.json");
 const axios = require('axios').default;
-require('dotenv').config();
 const apiKey = process.env.API_KEY;
 const cors = require("cors");
 
@@ -24,16 +24,15 @@ function handleListen() {
 
 // 4. creating a route
 app.get("/", handleHomePage);
-
 app.get("/favorite", handelFavoritePage)
-app.use( "*",handelNotfound);
-app.use(Err500);
-
-
-
 
 app.get('/trending', handleTrending);
 app.get('/search', handleSearch);
+app.get('/upcoming', handelComing);
+app.get('/rated', handelRate);
+
+app.use( "*",handelNotfound);
+app.use(Err500);
 
 
 
@@ -73,7 +72,7 @@ function handelNotfound(req , res)
 // axios.get().then().catch()
 function handleTrending(req, res) {
     // waiting to get data from 3rd API
-    const url = `https://api.themoviedb.org/3/trending/all/week?api_key=37ddc7081e348bf246a42f3be2b3dfd0&language=en-US`;
+    const url =` https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}&language=en-US`;
     axios.get(url)
         .then(result => {
             let moves = result.data.results.map(element => {
@@ -89,23 +88,60 @@ function handleTrending(req, res) {
 
     }
 
-    function handleSearch(req, res) {
-        console.log(req.query);
-        
-        let moviname = req.query.moviname; // I chose to call it name
-        let url = `https://api.themoviedb.org/3/search/movie?api_key=668baa4bb128a32b82fe0c15b21dd699&language=en-US&query=${moviname}`
+    
 
+
+    function handleSearch(req, res) {
+  let movieName = req.query.movieName;
+  let url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${movieName}&page=2`;
+  // axios.get().then().catch() 
+  axios.get(url)
+    .then(result => {
+      // console.log(result.data.results);
+      res.json(result.data.results)
+    })
+    .catch((error) => {
+      console.log(error);
+      res.send("Searching for data")
+    })
+}
+function handelComing(req, res) {
+    // waiting to get data from 3rd API
+    const url = `https://api.themoviedb.org/3/movie/upcoming?api_key=${apiKey}&language=en-US&page=1`;
+    axios.get(url)
+        .then(result => {
+            // console.log(result);
+            let moves2 = result.data.results.map(element => {
+                return new Movi(element.id, element.title, element.poster_path ,element.release_date);
+            })
+            res.json(moves2);
+        })
+        .catch((error) => {
+            console.log(error);
+            res.send("Inside catch")
+        })
+
+
+    }
+
+    function handelRate(req, res) {
+        // waiting to get data from 3rd API
+        const url = `https://api.themoviedb.org/3/movie/upcoming?api_key=${apiKey}&language=en-US&page=1`;
         axios.get(url)
             .then(result => {
-                // console.log(result)
-                console.log(result.data.results);
-                res.json(result.data.results);
-
+                // console.log(result);
+                let movees = result.data.results.map(element => {
+                    return new Movi(element.id, element.title, element.poster_path );
+                })
+                res.json(movees);
             })
-            .catch();
-        // waiting to get data from 3rd API
-        res.send("Searching for recipes");
-    }
+            .catch((error) => {
+                console.log(error);
+                res.send("Inside catch")
+            })
+    
+    
+        }
 
 
     function Movi( id ,title, poster_path ,release_date , overview) {
