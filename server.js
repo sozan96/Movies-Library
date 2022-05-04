@@ -1,5 +1,8 @@
 'use strict'
 
+const url="postgres://sozan:0000@localhost:5432/movi";
+
+
 // 1. require the package
 require('dotenv').config();
 const express = require('express');
@@ -8,19 +11,36 @@ const axios = require('axios').default;
 const apiKey = process.env.API_KEY;
 const cors = require("cors");
 
+const bodyParser = require('body-parser');
+require('dotenv').config();
+
 
 // 2. create an Express app
 const app = express();
 const port = 3000;
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
+const { Client } = require('pg');
+const client = new Client(url);
+
+//3. the server is listening after connected with DB
+client.connect().then(() => {
+
+    app.listen(port, () => {
+        console.log(`Server is listening ${port}`);
+    });
+})
 
 // 3. the server is listening on port 3000
-app.listen(port, handleListen);
-function handleListen() {
-    console.log(`Example app listening on port ${port}`)
+// app.listen(port, handleListen);
+// function handleListen() {
+//     console.log(`Example app listening on port ${port}`)
 
-}
+// }
+
+
 
 // 4. creating a route
 app.get("/", handleHomePage);
@@ -30,9 +50,11 @@ app.get('/trending', handleTrending);
 app.get('/search', handleSearch);
 app.get('/upcoming', handelComing);
 app.get('/rated', handelRate);
+app.post("/addMovi", handleAdd);
+app.get("/getMovi", handleGet);
 
-app.use( "*",handelNotfound);
-app.use(Err500);
+// app.use( "*",handelNotfound);
+app.use(handleError);
 
 
 
@@ -52,21 +74,7 @@ res.send("Welcome to favorite Page");
 
 
 
-//Function of handeling error 500
-function Err500 (req,res){
-    let error={
-        "status":500,
-        "responsetext": "Sorry something went wrong"
-    
-    }
-    res.status(500).json(error);
-}
 
-
-function handelNotfound(req , res)
-{
-    res.send("page not found")
-}
 
 
 // axios.get().then().catch()
@@ -151,3 +159,49 @@ function handelComing(req, res) {
         this.release_date = release_date;
         this.overview = overview;
     }
+
+
+    //Function related to DB 
+    function handleAdd(req, res){
+        // console.log(req.body);
+
+        const { id, title, poster_path, release_date , overview , myPersonal_Commen} = req.body;
+
+    let sql = 'INSERT INTO moviTable(id, title, poster_path, release_date , overview ,myPersonal_Commen ) VALUES($1, $2, $3, $4 ,$5 ,$6) RETURNING *;'; // sql query
+    let values = [id, title, poster_path, release_date , overview ,myPersonal_Commen  ];
+    client.query(sql, values).then((result) => {
+        console.log(result.rows);
+        return res.status(201).json(result.rows[0]);
+    }).catch()
+
+    }
+
+
+   
+
+    function handleGet(req, res) {
+        let sql = 'SELECT * from moviTable;'
+        client.query(sql).then((result) => {
+            console.log(result);
+            res.json(result.rows);
+            
+    }).catch((err) => {
+        handleError(err, req, res);
+    });
+
+    }
+
+
+
+
+    //Function of handeling error 500
+// 
+function handleError(error, req, res) {
+    res.status(500).send(error)
+}
+
+
+// function handelNotfound(req , res)
+// {
+//     res.send("page not found")
+// }
